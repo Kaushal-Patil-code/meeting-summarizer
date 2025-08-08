@@ -1,0 +1,10 @@
+Flask==2.3.3
+fyers-apiv3==3.0.6
+pyotp==2.9.0
+schedule==1.2.0
+gspread==5.10.0
+google-auth==2.23.0
+google-auth-oauthlib==1.0.0
+google-auth-httplib2==0.1.1
+Werkzeug==2.3.7
+gunicorn==21.2.0
