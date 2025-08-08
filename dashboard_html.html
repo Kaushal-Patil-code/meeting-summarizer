@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fyers Trading Bot Dashboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .card { 
+            background: white; 
+            padding: 25px; 
+            margin: 20px 0; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+        .header { 
+            text-align: center; 
+            color: white;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .status { 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .status.running { 
+            background: linear-gradient(135deg, #d4edda, #c3e6cb); 
+            border: 2px solid #28a745; 
+            color: #155724;
+        }
+        .status.stopped { 
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb); 
+            border: 2px solid #dc3545; 
+            color: #721c24;
+        }
+        .status.auth-needed { 
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7); 
+            border: 2px solid #ffc107; 
+            color: #856404;
+        }
+        .btn { 
+            padding: 12px 24px; 
+            margin: 8px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            display: inline-block;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .btn.primary { 
+            background: linear-gradient(135deg, #007bff, #0056b3); 
+            color: white; 
+        }
+        .btn.success { 
+            background: linear-gradient(135deg, #28a745, #1e7e34); 
+            color: white; 
+        }
+        .btn.danger { 
+            background: linear-gradient(135deg, #dc3545, #c82333); 
+            color: white; 
+        }
+        .btn.warning { 
+            background: linear-gradient(135deg, #ffc107, #e0a800); 
+            color: black; 
+        }
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .btn:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed;
+            transform: none;
+        }
+        .form-group { 
+            margin: 20px 0; 
+        }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 20px; 
+        }
+        .stat-card { 
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
+            padding: 20px; 
+            border-radius: 10px; 
+            text-align: center;
+            border: 1px solid #dee2e6;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .stat-number { 
+            font-size: 2.5em; 
+            font-weight: bold; 
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .schedule-info { 
+            background: linear-gradient(135deg, #e9ecef, #f8f9fa); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+        .schedule-info h3 {
+            color: #495057;
+            margin-top: 0;
+        }
+        .schedule-info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .schedule-info li {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+        #messages { 
+            margin: 20px 0; 
+        }
+        .message { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+        .message.success { 
+            background: linear-gradient(135deg, #d4edda, #c3e6cb); 
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .message.error { 
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb); 
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .loading { 
+            display: none; 
+            color: #667eea;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+        .feature-card h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Fyers Trading Bot</h1>
+            <p>Automated Volume Spike Detection & Trading</p>
+            <p><strong>1000+ Stocks • All Sectors • Real-time Monitoring</strong></p>
+        </div>
+
+        <div id="messages"></div>
+
+        <div class="card">
+            <h2>📊 Bot Status & Statistics</h2>
+            <div id="status-container">
+                <div class="status pulse" id="bot-status">Loading status...</div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-trades">0</div>
+                    <div class="stat-label">Total Trades Detected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="current-time">--:--</div>
+                    <div class="stat-label">Current Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="market-status">Closed</div>
+                    <div class="stat-label">Market Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">1000+</div>
+                    <div class="stat-label">Symbols Monitored</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="auth-section" style="display: none;">
+            <h2>🔐 Authentication Required</h2>
+            <div class="highlight">
+                <strong>Step 1:</strong> Click the button below to receive the Fyers login URL via email
+            </div>
+            
+            <button class="btn warning" onclick="generateAuthUrl()">
+                📧 Send Authentication URL to Email
+            </button>
+            <div class="loading" id="auth-loading">Generating authentication URL and sending email...</div>
+            
+            <div class="highlight" style="margin-top: 20px;">
+                <strong>Step 2:</strong> Check your email (dipesh.p24@fms.edu), click the login link, and copy the auth code
+            </div>
+            
+            <div class="form-group">
+                <label for="auth-code">🔑 Enter Auth Code from Redirect URL:</label>
+                <input type="text" id="auth-code" placeholder="Paste the auth code from your browser URL here..." maxlength="100">
+                <button class="btn primary" onclick="submitAuthCode()" style="margin-top: 15px; width: 100%;">
+                    ✅ Submit Auth Code & Start Trading
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎛️ Manual Controls</h2>
+            <p>Override automatic scheduling if needed</p>
+            
+            <div style="text-align: center;">
+                <button class="btn success" onclick="startTrading()" id="start-btn">
+                    ▶️ Start Trading Session
+                </button>
+                <button class="btn danger" onclick="stopTrading()" id="stop-btn">
+                    ⏹️ Stop Trading Session
+                </button>
+                <button class="btn primary" onclick="refreshStatus()">
+                    🔄 Refresh Status
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📅 Automatic Schedule</h2>
+            <div class="schedule-info">
+                <h3>🕘 Trading Hours</h3>
+                <p><strong>Monday to Friday:</strong> 9:15 AM - 3:30 PM IST</p>
+                <p><strong>Weekends:</strong> Bot remains idle</p>
+                <p><strong>Auto-start:</strong> Bot automatically begins monitoring every weekday</p>
+                <p><strong>Auto-stop:</strong> Trading session ends automatically at market close</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📧 Email Notifications</h4>
+                    <ul>
+                        <li>🔐 Authentication URLs with TOTP codes</li>
+                        <li>🚀 Trading session start/stop confirmations</li>
+                        <li>💰 Large trade alerts (₹3+ crore)</li>
+                        <li>⚠️ System error notifications</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>📊 Google Sheets Integration</h4>
+                    <p>All detected trades are automatically logged with:</p>
+                    <ul>
+                        <li>📅 Date and time stamps</li>
+                        <li>🏷️ Symbol and sector classification</li>
+                        <li>💹 Trade value and LTP</li>
+                        <li>📈 Volume spike details</li>
+                    </ul>
+                    <p><a href="https://docs.google.com/spreadsheets/d/1l_6Sx_u1czhY-5JdT22tpmCV8Os3XuZmZ3U2ShKDLHw" target="_blank">
+                        📝 View Your Trading Log Sheet
+                    </a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 Monitoring Configuration</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🎯 Detection Parameters</h4>
+                    <ul>
+                        <li><strong>Symbols:</strong> 1000+ NSE stocks</li>
+                        <li><strong>Trade Threshold:</strong> ₹3 crore (₹30,000,000)</li>
+                        <li><strong>Volume Spike:</strong> Minimum 1,000 shares</li>
+                        <li><strong>Cooldown:</strong> 1 minute between alerts per symbol</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>🏭 Sectors Tracked</h4>
+                    <ul>
+                        <li>🏦 Banking & Financial Services</li>
+                        <li>💻 Information Technology</li>
+                        <li>⛽ Oil & Gas</li>
+                        <li>🚗 Automobiles</li>
+                        <li>💊 Pharmaceuticals</li>
+                        <li>🛍️ FMCG & Consumer Goods</li>
+                        <li>⚡ Power & Utilities</li>
+                        <li>🏗️ Construction & Real Estate</li>
+                        <li>🌾 Agriculture & Fertilizers</li>
+                        <li>🧵 Textiles</li>
+                        <li>📺 Media & Entertainment</li>
+                        <li>📱 Telecommunications</li>
+                        <li>✈️ Travel & Transport</li>
+                        <li>⚙️ Metals & Mining</li>
+                        <li>🏨 Hotels & Tourism</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="schedule-info">
+                <h3>📡 Data Source</h3>
+                <p><strong>Real-time WebSocket feed</strong> from Fyers API</p>
+                <p><strong>Update frequency:</strong> Live tick-by-tick data</p>
+                <p><strong>Processing:</strong> Volume spike detection algorithm</p>
+                <p><strong>Storage:</strong> Google Sheets with sector classification</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💰 Cost & Usage</h2>
+            <div class="highlight">
+                <h3>🎉 100% FREE FOREVER</h3>
+                <p>This trading bot runs completely free using cloud service free tiers:</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>☁️ Render Hosting</h4>
+                    <ul>
+                        <li><strong>Free Tier:</strong> 750 hours/month</li>
+                        <li><strong>Your Usage:</strong> ~135 hours/month (18%)</li>
+                        <li><strong>Cost:</strong> ₹0/month</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>📧 Gmail Integration</h4>
+                    <ul>
+                        <li><strong>Free Tier:</strong> 500 emails/day</li>
+                        <li><strong>Your Usage:</strong> ~10-20 emails/day (4%)</li>
+                        <li><strong>Cost:</strong> ₹0/month</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>📊 Google Sheets</h4>
+                    <ul>
+                        <li><strong>Free Tier:</strong> 100 requests/100 seconds</li>
+                        <li><strong>Your Usage:</strong> Light API usage</li>
+                        <li><strong>Cost:</strong> ₹0/month</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>📈 Total Monthly Cost</h4>
+                    <ul>
+                        <li><strong>Hosting:</strong> ₹0</li>
+                        <li><strong>Email:</strong> ₹0</li>
+                        <li><strong>Storage:</strong> ₹0</li>
+                        <li><strong>Total:</strong> <span style="font-size: 1.5em; color: #28a745; font-weight: bold;">₹0</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let statusInterval;
+
+        function showMessage(text, type = 'success') {
+            const messages = document.getElementById('messages');
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.innerHTML = text;
+            messages.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 8000);
+        }
+
+        function updateStatus() {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    const statusContainer = document.getElementById('bot-status');
+                    const authSection = document.getElementById('auth-section');
+                    
+                    // Update status display
+                    if (data.is_running) {
+                        statusContainer.className = 'status running pulse';
+                        statusContainer.innerHTML = '🟢 <strong>LIVE:</strong> Bot is actively monitoring 1000+ stocks for large trades';
+                        authSection.style.display = 'none';
+                    } else if (!data.is_authenticated || data.waiting_for_auth) {
+                        statusContainer.className = 'status auth-needed pulse';
+                        statusContainer.innerHTML = '🔐 <strong>AUTHENTICATION REQUIRED:</strong> Please authenticate with Fyers to start trading';
+                        authSection.style.display = 'block';
+                    } else {
+                        statusContainer.className = 'status stopped';
+                        statusContainer.innerHTML = '🔴 <strong>STANDBY:</strong> Bot is authenticated but not currently trading';
+                        authSection.style.display = 'none';
+                    }
+                    
+                    // Update stats
+                    document.getElementById('total-trades').textContent = data.total_trades || 0;
+                    
+                    // Format current time
+                    const currentTime = new Date(data.current_time);
+                    document.getElementById('current-time').textContent = currentTime.toLocaleTimeString('en-IN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    
+                    // Update market status
+                    let marketStatus = 'Closed';
+                    if (data.market_day) {
+                        if (data.should_run) {
+                            marketStatus = '🟢 Open';
+                        } else {
+                            const now = new Date();
+                            const currentHour = now.getHours();
+                            const currentMinute = now.getMinutes();
+                            const currentTimeMinutes = currentHour * 60 + currentMinute;
+                            const marketStart = 9 * 60 + 15; // 9:15 AM
+                            
+                            if (currentTimeMinutes < marketStart) {
+                                marketStatus = '🟡 Pre-market';
+                            } else {
+                                marketStatus = '🔴 After Hours';
+                            }
+                        }
+                    } else {
+                        marketStatus = '🔴 Weekend';
+                    }
+                    document.getElementById('market-status').textContent = marketStatus;
+                    
+                    // Update button states
+                    const startBtn = document.getElementById('start-btn');
+                    const stopBtn = document.getElementById('stop-btn');
+                    
+                    startBtn.disabled = !data.is_authenticated || data.is_running;
+                    stopBtn.disabled = !data.is_running;
+                    
+                    // Add activity indicator
+                    if (data.last_heartbeat) {
+                        const lastHeartbeat = new Date(data.last_heartbeat);
+                        const timeDiff = Date.now() - lastHeartbeat.getTime();
+                        if (timeDiff < 300000) { // 5 minutes
+                            const seconds = Math.floor(timeDiff / 1000);
+                            const timeText = seconds < 60 ? `${seconds}s ago` : `${Math.floor(seconds/60)}m ago`;
+                            statusContainer.innerHTML += ` <small>(Last activity: ${timeText})</small>`;
+                        }
+                    }
+                    
+                    // Add session info
+                    if (data.session_start && data.is_running) {
+                        const sessionStart = new Date(data.session_start);
+                        const sessionDuration = Math.floor((Date.now() - sessionStart.getTime()) / 1000 / 60);
+                        statusContainer.innerHTML += ` <small>(Session: ${sessionDuration}m)</small>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching status:', error);
+                    document.getElementById('bot-status').innerHTML = '❌ <strong>CONNECTION ERROR:</strong> Unable to fetch bot status';
+                    document.getElementById('bot-status').className = 'status stopped';
+                });
+        }
+
+        function generateAuthUrl() {
+            const loading = document.getElementById('auth-loading');
+            loading.style.display = 'block';
+            
+            fetch('/authenticate')
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    if (data.success) {
+                        showMessage('📧 Authentication URL sent to your email! Check dipesh.p24@fms.edu (including spam folder)', 'success');
+                    } else {
+                        showMessage('❌ Failed to generate authentication URL: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    showMessage('❌ Error: ' + error.message, 'error');
+                });
+        }
+
+        function submitAuthCode() {
+            const authCode = document.getElementById('auth-code').value.trim();
+            if (!authCode) {
+                showMessage('⚠️ Please enter the auth code from your browser URL', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('auth_code', authCode);
+            
+            fetch('/auth_code', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('✅ Authentication successful! Your trading bot is now ready and will start monitoring automatically during market hours.', 'success');
+                        document.getElementById('auth-code').value = '';
+                        updateStatus();
+                    } else {
+                        showMessage('❌ Authentication failed: ' + data.message + '. Please try generating a new auth URL.', 'error');
+                    }
+                })
+                .catch(error => {
+                    showMessage('❌ Error: ' + error.message, 'error');
+                });
+        }
+
+        function startTrading() {
+            showMessage('🚀 Starting trading session...', 'success');
+            fetch('/start_trading')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('✅ Trading session started successfully! Bot is now monitoring 1000+ stocks.', 'success');
+                        updateStatus();
+                    } else {
+                        showMessage('❌ Failed to start trading: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showMessage('❌ Error: ' + error.message, 'error');
+                });
+        }
+
+        function stopTrading() {
+            fetch('/stop_trading')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('⏹️ Trading session stopped successfully.', 'success');
+                        updateStatus();
+                    } else {
+                        showMessage('❌ Failed to stop trading: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showMessage('❌ Error: ' + error.message, 'error');
+                });
+        }
+
+        function refreshStatus() {
+            updateStatus();
+            showMessage('🔄 Status refreshed successfully', 'success');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus();
+            statusInterval = setInterval(updateStatus, 30000); // Update every 30 seconds
+            
+            // Show welcome message
+            setTimeout(() => {
+                showMessage('🎉 Welcome to your Fyers Trading Bot! Monitoring 1000+ stocks across all major sectors.', 'success');
+            }, 1000);
+        });
+
+        // Handle Enter key in auth code input
+        document.getElementById('auth-code').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitAuthCode();
+            }
+        });
+
+        // Auto-focus auth code input when section is visible
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    const authSection = document.getElementById('auth-section');
+                    if (authSection.style.display !== 'none') {
+                        setTimeout(() => {
+                            document.getElementById('auth-code').focus();
+                        }, 500);
+                    }
+                }
+            });
+        });
+
+        observer.observe(document.getElementById('auth-section'), {
+            attributes: true,
+            attributeFilter: ['style']
+        });
+    </script>
+</body>
+</html>
